@@ -11,6 +11,8 @@ class Simulation:
     def __init__(self):
         self.world = World(10, 10)
         self.graphic = Graphic(self.world, 400, 400)
+        self.world.add_agent(0, 0, Agent())
+        self.world.add_agent(2, 3, Agent())
 
     def run(self):
         while True:
