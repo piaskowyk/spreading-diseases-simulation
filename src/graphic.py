@@ -1,6 +1,7 @@
 import pygame
 from pygame.surface import Surface
 from src.world import World
+from src.agent_config import AgentStateConfig
 
 
 class Graphic:
@@ -23,7 +24,6 @@ class Graphic:
         self.height_size = int(self.height / self.world.height)
 
     def render_grid(self):
-
         color_type = 0
         for x in range(self.world.width):
             for y in range(self.world.height):
@@ -51,4 +51,4 @@ class Graphic:
                 self.width_size * agent.field.x + (self.width_size / 2),
                 self.height_size * agent.field.y + (self.height_size / 2),
             )
-            pygame.draw.circle(self.surface, (255, 0, 0), position, 10)
+            pygame.draw.circle(self.surface, AgentStateConfig.colors[agent.agent_state], position, 10)

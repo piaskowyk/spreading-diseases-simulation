@@ -17,6 +17,7 @@ class Agent:
         ID += 1
         self.id = ID
         self.world = world
+        self.agent_state = AgentState.HEALTHY
 
     def step(self):
         x = self.field.x + rnd.randint(-1, 1)
