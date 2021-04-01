@@ -1,8 +1,6 @@
 import pygame
-from pygame import Color
 from pygame.surface import Surface
 from src.world import World
-import random
 
 
 class Graphic:
