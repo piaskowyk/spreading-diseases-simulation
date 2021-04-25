@@ -26,3 +26,4 @@ class AgentActivity(Enum):
     SICK = 4
     TALK = 5
     NONE = 6
+

@@ -28,7 +28,7 @@ class World:
 
     def is_possible_move(self, x: int, y: int):
         return True \
-            if -1 < x < self.width and -1 < y < self.height and self.field_is_free(x, y) \
+            if self.is_point_inside_map(x, y) and self.field_is_free(x, y) \
             else False
 
     def move_agent(self, agent: Agent, x: int, y: int):
@@ -37,4 +37,20 @@ class World:
             raise Exception(f'Field ({field.x},{field.y}) is already taken.')
         agent.field.release()
         field.take(agent)
+
+    def get_agents_in_range(self, center_x: int, center_y: int, radius: int):
+        agents = []
+        for x in range(center_x - radius, center_x + radius):
+            for y in range (center_y - radius, center_y + radius):
+                if self.is_point_inside_map(x, y) and x != center_x and y != center_y:
+                    if not self.fields[x][y].is_free():
+                        agents.append(self.fields[x][y].agent)
+        return agents
+
+    def is_point_inside_map(self, x: int, y: int):
+        return True \
+            if -1 < x < self.width and -1 < y < self.height \
+            else False
+
+
 
