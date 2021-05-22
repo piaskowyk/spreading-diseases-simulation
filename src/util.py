@@ -19,6 +19,8 @@ def rand_from_set(items: list):
 
 
 def get_value_with_variation(value, variation, to_int=False):
+    if value - variation < 0:
+        raise Exception("value - variation < 0")
     if to_int:
-        return random.randint(value - variation, value - variation)
-    return random.uniform(value - variation, value - variation)
+        return random.randint(value - variation, value + variation)
+    return random.uniform(value - variation, value + variation)

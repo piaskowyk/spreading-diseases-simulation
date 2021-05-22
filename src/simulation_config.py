@@ -21,4 +21,6 @@ class SimulationConfig:
     death_probability = 0.01
     death_probability_variation = 0.01
     cough_probability = 0.1
-    cough_probability_variation = 1
+    cough_probability_variation = 0.1
+    has_symptoms_probability = 0.1
+    has_symptoms_probability_variation = 0.1
