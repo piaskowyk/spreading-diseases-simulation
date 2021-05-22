@@ -51,4 +51,4 @@ class Graphic:
                 self.width_size * agent.field.x + (self.width_size / 2),
                 self.height_size * agent.field.y + (self.height_size / 2),
             )
-            pygame.draw.circle(self.surface, AgentStateConfig.colors[agent.agent_state], position, 10)
+            pygame.draw.circle(self.surface, AgentStateConfig.colors[agent.status], position, 10)

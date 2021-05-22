@@ -6,13 +6,14 @@ class WorldSearcher:
     world = None
 
     @staticmethod
-    def get_nearby_sick_agents(field: Field, self_agent):
+    def get_nearby_infectable_agents(field: Field, self_agent):
         r = 1
         world = WorldSearcher.world
         output = []
         for x in range(max(0, field.x - r), min(world.width, field.x + r + 1)):
             for y in range(max(0, field.y - r), min(world.height, field.y + r + 1)):
                 agent = world.fields[x][y].agent
-                if agent and self_agent != agent and agent.agent_state == AgentHealthState.SICK:
+                if agent and self_agent != agent and (agent.status is AgentHealthState.SICK or
+                                                      agent.status is AgentHealthState.INFECTED):
                     output.append(agent)
         return output

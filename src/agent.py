@@ -12,7 +12,7 @@ class Agent:
     id: int
     field: Field
     world = None
-    agent_state: AgentHealthState
+    status: AgentHealthState
     agent_activity: AgentActivityState
 
     infection_probability = 0
@@ -24,19 +24,15 @@ class Agent:
         ID += 1
         self.id = ID
         self.world = world
-        self.agent_state = AgentHealthState.SICK if is_sick else AgentHealthState.HEALTHY
-        if self.agent_state is AgentHealthState.SICK:
-            self.current_state_cool_down = self.calculate_sickness_cool_down()
+        self.status = AgentHealthState.SICK if is_sick else AgentHealthState.HEALTHY
+        if self.status is AgentHealthState.SICK:
+            self.current_state_cool_down = self.calculate_sickness_duration()
         self.infection_probability = self.calculate_infection_probability()
 
     def step(self):
         self.update_state()
         self.walk()
-        if self.agent_state != AgentHealthState.SICK:
-            sick_agents = WorldSearcher.get_nearby_sick_agents(self.field, self)
-            if len(sick_agents) > 0 and self.is_infection_happen():
-                self.agent_state = AgentHealthState.SICK
-                self.current_state_cool_down = self.calculate_sickness_cool_down()
+        self.infection_check()
 
     def walk(self):
         x = self.field.x + rnd.randint(-1, 1)
@@ -44,11 +40,11 @@ class Agent:
         if self.world.is_possible_move(x, y):
             self.world.move_agent(self, x, y)
 
-    def sleep_action(self):
+    def cough(self):
         pass
 
     def is_infection_happen(self):
-        if self.agent_state is AgentHealthState.SICK:
+        if self.status is AgentHealthState.SICK:
             return False
         return is_with_probability(self.infection_probability)
 
@@ -57,15 +53,36 @@ class Agent:
             return
         self.current_state_cool_down -= 1
         if self.current_state_cool_down == 0:
-            if self.agent_state is AgentHealthState.SICK:
-                self.agent_state = AgentHealthState.HEALTHY
+            if self.status is AgentHealthState.RECOVERED:
+                self.status = AgentHealthState.HEALTHY
+
+            if self.status is AgentHealthState.SICK:
+                self.status = AgentHealthState.RECOVERED
+                self.current_state_cool_down = self.calculate_recovered_duration()
+
+            if self.status is AgentHealthState.INFECTED:
+                self.status = AgentHealthState.SICK
+                self.current_state_cool_down = self.calculate_sickness_duration()
+
         self.death_check()
 
+    def death_check(self):
+        if self.status is AgentHealthState.SICK:
+            if is_with_probability(self.calculate_death_probability()):
+                self.status = AgentHealthState.DEAD
 
-    def calculate_sickness_cool_down(self):
+    def infection_check(self):
+        if self.status is AgentHealthState.SICK or self.status is AgentHealthState.RECOVERED:
+            return
+        sick_agents = WorldSearcher.get_nearby_infectable_agents(self.field, self)
+        if len(sick_agents) > 0 and self.is_infection_happen():
+            self.status = AgentHealthState.INFECTED
+            self.current_state_cool_down = self.calculate_infection_duration()
+
+    def calculate_sickness_duration(self):
         return get_value_with_variation(
-            SimulationConfig.sickness_cool_down,
-            SimulationConfig.sickness_cool_down_variation
+            SimulationConfig.sickness_duration,
+            SimulationConfig.sickness_duration_variation
         )
 
     def calculate_infection_probability(self):
@@ -80,8 +97,26 @@ class Agent:
             SimulationConfig.agent_resistance_variation
         )
 
-    def death_check(self):
-        if self.agent_state is not AgentHealthState.SICK:
-            return
-        if is_with_probability(SimulationConfig.death_probability):
-            self.agent_state = AgentHealthState.DEAD
+    def calculate_infection_duration(self):
+        return get_value_with_variation(
+            SimulationConfig.infection_duration,
+            SimulationConfig.infection_duration_variation
+        )
+
+    def calculate_recovered_duration(self):
+        return get_value_with_variation(
+            SimulationConfig.recovered_duration,
+            SimulationConfig.recovered_duration_variation
+        )
+
+    def calculate_death_probability(self):
+        return get_value_with_variation(
+            SimulationConfig.death_probability,
+            SimulationConfig.death_probability_variation
+        )
+
+    def calculate_cough_probability(self):
+        return get_value_with_variation(
+            SimulationConfig.cough_probability,
+            SimulationConfig.cough_probability_variation
+        )

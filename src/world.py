@@ -52,5 +52,5 @@ class World:
 
     def clear_death_agents(self):
         for agent in self.agents:
-            if agent.agent_state is AgentHealthState.DEAD:
+            if agent.status is AgentHealthState.DEAD:
                 self.agents.remove(agent)
