@@ -1,5 +1,8 @@
+import random
+
 from src.field import Field
 from src.agent import Agent
+from src.world_searcher import WorldSearcher
 
 
 class World:
@@ -18,9 +21,17 @@ class World:
             for y in range(height):
                 line.append(Field(x, y))
             self.fields.append(line)
+        WorldSearcher.world = self
 
     def add_agent(self, x: int, y: int, agent: Agent):
         self.agents.append(agent)
+        self.fields[x][y].take(agent)
+
+    def add_agent_on_free(self, agent: Agent):
+        self.agents.append(agent)
+        x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
+        while not self.field_is_free(x, y):
+            x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
         self.fields[x][y].take(agent)
 
     def field_is_free(self, x: int, y: int):
@@ -37,4 +48,3 @@ class World:
             raise Exception(f'Field ({field.x},{field.y}) is already taken.')
         agent.field.release()
         field.take(agent)
-

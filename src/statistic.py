@@ -10,9 +10,10 @@ class Statistic:
     epoch: int = 0
 
     def __init__(self, world):
-        self.result_file = open(datetime.now().strftime("%d/%m/%Y_%H:%M:%S.csv"), "a")
-        self.result_file.write('epoch,all_agents')
-        self.world = world
+        if self.is_collect_statistics:
+            self.result_file = open(datetime.now().strftime("%d-%m-%Y_%H:%M:%S.csv"), "a")
+            self.result_file.write('epoch,all_agents')
+            self.world = world
 
     def collect_statistics(self):
         if not self.is_collect_statistics:
