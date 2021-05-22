@@ -15,3 +15,4 @@ class SimulationConfig:
     infection_probability_variation = 0.1
     agent_resistance = 0.1
     agent_resistance_variation = 0.1
+    death_probability = 0.01

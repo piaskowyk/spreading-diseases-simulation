@@ -2,7 +2,7 @@ import random as rnd
 from src.field import Field
 from src.agent_config import AgentActivityState, AgentHealthState
 from src.simulation_config import SimulationConfig
-from src.util import is_with_probability
+from src.util import is_with_probability, get_value_with_variation
 from src.world_searcher import WorldSearcher
 
 ID: int = 0
@@ -59,15 +59,29 @@ class Agent:
         if self.current_state_cool_down == 0:
             if self.agent_state is AgentHealthState.SICK:
                 self.agent_state = AgentHealthState.HEALTHY
+        self.death_check()
+
 
     def calculate_sickness_cool_down(self):
-        # todo
-        return SimulationConfig.sickness_cool_down
+        return get_value_with_variation(
+            SimulationConfig.sickness_cool_down,
+            SimulationConfig.sickness_cool_down_variation
+        )
 
     def calculate_infection_probability(self):
-        # todo
-        return SimulationConfig.infection_probability
+        return get_value_with_variation(
+            SimulationConfig.infection_probability,
+            SimulationConfig.infection_probability_variation
+        )
 
     def calculate_resistance(self):
-        # todo
-        return SimulationConfig.agent_resistance
+        return get_value_with_variation(
+            SimulationConfig.agent_resistance,
+            SimulationConfig.agent_resistance_variation
+        )
+
+    def death_check(self):
+        if self.agent_state is not AgentHealthState.SICK:
+            return
+        if is_with_probability(SimulationConfig.death_probability):
+            self.agent_state = AgentHealthState.DEAD

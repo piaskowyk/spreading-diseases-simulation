@@ -1,5 +1,6 @@
 import random
 
+from src.agent_config import AgentHealthState
 from src.field import Field
 from src.agent import Agent
 from src.world_searcher import WorldSearcher
@@ -48,3 +49,8 @@ class World:
             raise Exception(f'Field ({field.x},{field.y}) is already taken.')
         agent.field.release()
         field.take(agent)
+
+    def clear_death_agents(self):
+        for agent in self.agents:
+            if agent.agent_state is AgentHealthState.DEAD:
+                self.agents.remove(agent)

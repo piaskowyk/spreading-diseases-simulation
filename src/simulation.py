@@ -46,5 +46,6 @@ class Simulation:
 
     def step(self):
         random.shuffle(self.world.agents)
+        self.world.clear_death_agents()
         for agent in self.world.agents:
             agent.step()
