@@ -30,6 +30,6 @@ class AgentActivityState(Enum):
     NONE = 8
 
 
-class Effect(Enum):
+class SimulationEventType(Enum):
     COUGH = 1,
     SNEEZE = 2

@@ -1,5 +1,6 @@
 import random
 
+from src.SimulationEvent import SimulationEvent
 from src.agent_config import AgentHealthState
 from src.field import Field
 from src.agent import Agent
@@ -11,6 +12,7 @@ class World:
     height: int
     fields: list[list[Field]]
     agents: list[Agent]
+    event_collector: list[SimulationEvent] = []
 
     def __init__(self, width, height):
         self.width = width
@@ -54,3 +56,10 @@ class World:
         for agent in self.agents:
             if agent.status is AgentHealthState.DEAD:
                 self.agents.remove(agent)
+
+    def push_event(self, event: SimulationEvent):
+        self.event_collector.append(event)
+
+    def process_step_effects(self):
+        # todo: zarażanie po kaszlu
+        self.event_collector.clear()

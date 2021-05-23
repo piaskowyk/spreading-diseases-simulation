@@ -1,4 +1,5 @@
 import time
+
 from src.agent import Agent
 from src.graphic import Graphic
 from src.statistic import Statistic
@@ -47,3 +48,4 @@ class Simulation:
         self.world.clear_death_agents()
         for agent in self.world.agents:
             agent.step()
+        self.world.process_step_effects()

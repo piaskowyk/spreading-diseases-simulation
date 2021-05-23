@@ -1,10 +1,11 @@
 import random as rnd
 
+from src.SimulationEvent import SimulationEvent
 from src.agent_probability_calculator import calculate_infection_duration, calculate_death_probability, \
     calculate_sickness_duration, calculate_recovered_duration, calculate_infection_probability, \
     calculate_cough_probability, calculate_sneeze_probability
 from src.field import Field
-from src.agent_config import AgentActivityState, AgentHealthState, Effect
+from src.agent_config import AgentActivityState, AgentHealthState, SimulationEventType
 from src.util import is_with_probability
 from src.world_searcher import WorldSearcher
 
@@ -18,8 +19,8 @@ class Agent:
     status: AgentHealthState
     agent_activity: AgentActivityState
 
-    render_effect = False
-    effect = 0
+    render_event = False
+    event = 0
 
     infection_probability = 0
     cough_probability = 0
@@ -56,11 +57,13 @@ class Agent:
         if self.status is not AgentHealthState.SICK:
             return
         if is_with_probability(self.cough_probability):
-            self.render_effect = True
-            self.effect = Effect.COUGH
+            self.render_event = True
+            self.event = SimulationEventType.COUGH
         if is_with_probability(self.sneeze_probability):
-            self.render_effect = True
-            self.effect = Effect.SNEEZE
+            self.render_event = True
+            self.event = SimulationEventType.SNEEZE
+        if self.render_event:
+            self.world.push_event(SimulationEvent(self.field, self.event))
 
     def is_infection_happen(self):
         if self.status is AgentHealthState.SICK:
