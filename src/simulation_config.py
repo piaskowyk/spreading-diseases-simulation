@@ -1,5 +1,5 @@
 class SimulationConfig:
-    interval = 0.5
+    interval = 0
     word_size = (10, 10)
     pane_size = (400, 400)
 

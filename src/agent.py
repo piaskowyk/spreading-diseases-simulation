@@ -45,7 +45,9 @@ class Agent:
             self.world.move_agent(self, x, y)
 
     def cough(self):
-        pass
+        if self.status is not AgentHealthState.SICK:
+            return
+        #todo
 
     def is_infection_happen(self):
         if self.status is AgentHealthState.SICK:
