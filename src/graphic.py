@@ -1,7 +1,7 @@
 import pygame
 from pygame.surface import Surface
 from src.world import World
-from src.agent_config import AgentStateConfig
+from src.agent_config import AgentStateConfig, Effect
 
 
 class Graphic:
@@ -68,8 +68,13 @@ class Graphic:
                 self.width_size * agent.field.x + (self.width_size / 2),
                 self.height_size * agent.field.y + (self.height_size / 2),
             )
-            pygame.draw.circle(self.alpha_surface, (33, 33, 33, 100), position, 100)
             pygame.draw.circle(self.agent_surface, AgentStateConfig.colors[agent.status], position, 10)
+            if agent.render_effect:
+                if agent.effect == Effect.COUGH:
+                    pygame.draw.circle(self.alpha_surface, (33, 33, 33, 100), position, 100)
+                if agent.effect == Effect.SNEEZE:
+                    pygame.draw.circle(self.alpha_surface, (33, 33, 33, 100), position, 200)
+                agent.render_effect = False
 
         self.screen.blit(self.background_surface, (0, 0))
         self.screen.blit(self.alpha_surface, (0, 0))

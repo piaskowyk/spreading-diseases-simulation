@@ -28,3 +28,8 @@ class AgentActivityState(Enum):
     WEAR_MASK = 6
     QUARANTINE = 7
     NONE = 8
+
+
+class Effect(Enum):
+    COUGH = 1,
+    SNEEZE = 2

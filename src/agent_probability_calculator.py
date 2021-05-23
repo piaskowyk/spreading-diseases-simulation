@@ -52,3 +52,10 @@ def calculate_cough_probability():
         SimulationConfig.cough_probability,
         SimulationConfig.cough_probability_variation
     )
+
+
+def calculate_sneeze_probability():
+    return get_value_with_variation(
+        SimulationConfig.sneeze_probability,
+        SimulationConfig.sneeze_probability_variation
+    )

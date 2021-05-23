@@ -18,13 +18,11 @@ class Simulation:
         self.graphic = Graphic(self.world, *SimulationConfig.pane_size)
 
         if SimulationConfig.fixed_sick_cases:
-            self.world.add_agent(3, 3, Agent(self.world, True))
-            self.world.add_agent(4, 4, Agent(self.world, False))
-            # for i in range(SimulationConfig.population_size):
-            #     if i < SimulationConfig.fixed_cases_count:
-            #         self.world.add_agent_on_free(Agent(self.world, True))
-            #     else:
-            #         self.world.add_agent_on_free(Agent(self.world, False))
+            for i in range(SimulationConfig.population_size):
+                if i < SimulationConfig.fixed_cases_count:
+                    self.world.add_agent_on_free(Agent(self.world, True))
+                else:
+                    self.world.add_agent_on_free(Agent(self.world, False))
         else:
             for i in range(SimulationConfig.population_size):
                 self.world.add_agent_on_free(

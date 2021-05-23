@@ -1,9 +1,10 @@
 import random as rnd
 
 from src.agent_probability_calculator import calculate_infection_duration, calculate_death_probability, \
-    calculate_sickness_duration, calculate_recovered_duration, calculate_infection_probability
+    calculate_sickness_duration, calculate_recovered_duration, calculate_infection_probability, \
+    calculate_cough_probability, calculate_sneeze_probability
 from src.field import Field
-from src.agent_config import AgentActivityState, AgentHealthState
+from src.agent_config import AgentActivityState, AgentHealthState, Effect
 from src.util import is_with_probability
 from src.world_searcher import WorldSearcher
 
@@ -17,7 +18,12 @@ class Agent:
     status: AgentHealthState
     agent_activity: AgentActivityState
 
+    render_effect = False
+    effect = 0
+
     infection_probability = 0
+    cough_probability = 0
+    sneeze_probability = 0
     current_state_cool_down = 0
     resistance = 0
     has_symptoms = None
@@ -31,12 +37,14 @@ class Agent:
         if self.status is AgentHealthState.SICK:
             self.current_state_cool_down = calculate_sickness_duration()
         self.infection_probability = calculate_infection_probability()
+        self.cough_probability = calculate_cough_probability()
+        self.sneeze_probability = calculate_sneeze_probability()
 
     def step(self):
         self.update_state()
         self.walk()
         self.infection_check()
-        self.cough()
+        self.cough_or_sneeze()
 
     def walk(self):
         x = self.field.x + rnd.randint(-1, 1)
@@ -44,10 +52,15 @@ class Agent:
         if self.world.is_possible_move(x, y):
             self.world.move_agent(self, x, y)
 
-    def cough(self):
+    def cough_or_sneeze(self):
         if self.status is not AgentHealthState.SICK:
             return
-        #todo
+        if is_with_probability(self.cough_probability):
+            self.render_effect = True
+            self.effect = Effect.COUGH
+        if is_with_probability(self.sneeze_probability):
+            self.render_effect = True
+            self.effect = Effect.SNEEZE
 
     def is_infection_happen(self):
         if self.status is AgentHealthState.SICK:
