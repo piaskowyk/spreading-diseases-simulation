@@ -18,7 +18,7 @@ class Agent:
     field: Field
     world = None
     status: AgentHealthState
-    agent_activity: AgentActivityState
+    agent_activity: AgentActivityState = AgentActivityState.NONE
 
     render_event = False
     event = SimulationEventType.NONE
@@ -27,6 +27,7 @@ class Agent:
     cough_probability = 0
     sneeze_probability = 0
     current_state_cool_down = 0
+    quarantine_cool_down = 0
     resistance = 0
     has_symptoms = False
 
@@ -50,6 +51,8 @@ class Agent:
         self.cough_or_sneeze()
 
     def walk(self):
+        if self.agent_activity == AgentActivityState.QUARANTINE:
+            return
         x = self.field.x + rnd.randint(-1, 1)
         y = self.field.y + rnd.randint(-1, 1)
         if self.world.is_possible_move(x, y):
@@ -73,6 +76,11 @@ class Agent:
         return is_with_probability(self.infection_probability)
 
     def update_state(self):
+        if self.quarantine_cool_down > 0:
+            self.quarantine_cool_down -= 1
+        if self.quarantine_cool_down == 0 and self.agent_activity == AgentActivityState.QUARANTINE:
+            self.agent_activity = AgentActivityState.NONE
+
         if self.current_state_cool_down == 0:
             return
         self.current_state_cool_down -= 1
@@ -87,6 +95,7 @@ class Agent:
             if self.status is AgentHealthState.INFECTED:
                 self.status = AgentHealthState.SICK
                 self.current_state_cool_down = calculate_sickness_duration()
+                self.quarantine_check()
 
         self.death_check()
 
@@ -94,6 +103,11 @@ class Agent:
         if self.status is AgentHealthState.SICK:
             if is_with_probability(calculate_death_probability()):
                 self.status = AgentHealthState.DEAD
+
+    def quarantine_check(self):
+        if is_with_probability(SimulationConfig.quarantine_probability):
+            self.agent_activity = AgentActivityState.QUARANTINE
+            self.quarantine_cool_down = SimulationConfig.quarantine_duration
 
     def infection_check(self):
         if self.status in [AgentHealthState.SICK, AgentHealthState.RECOVERED, AgentHealthState.INFECTED]:

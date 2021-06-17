@@ -29,3 +29,6 @@ class SimulationConfig:
     sneeze_probability_variation = 0.1
     has_symptoms_probability = 0.8
     has_symptoms_probability_variation = 0.1
+
+    quarantine_probability = 0.7
+    quarantine_duration = 10
