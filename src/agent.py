@@ -30,6 +30,7 @@ class Agent:
     quarantine_cool_down = 0
     resistance = 0
     has_symptoms = False
+    wearing_mask = False
 
     def __init__(self, world, is_sick):
         global ID
@@ -43,6 +44,7 @@ class Agent:
         self.cough_probability = calculate_cough_probability()
         self.sneeze_probability = calculate_sneeze_probability()
         self.has_symptoms = is_with_probability(calculate_symptoms_probability())
+        self.wearing_mask = is_with_probability(SimulationConfig.wearing_mask_probability)
 
     def step(self):
         self.update_state()
@@ -70,10 +72,32 @@ class Agent:
         if self.render_event:
             self.world.push_event(SimulationEvent(self.field, self.event))
 
-    def is_infection_happen(self):
+    def is_infection_happen(self, sick_agents, is_from_symptom=False):
+        if len(sick_agents) == 0:
+            return False
+        all_wear_mask = True
+        for agent in sick_agents:
+            if not agent.wearing_mask:
+                all_wear_mask = False
+                break
+        current_infection_probability = self.infection_probability
+        protection = 0
+        if all_wear_mask:
+            protection = SimulationConfig.wearing_mask_other_protection_factor
+        if self.wearing_mask:
+            protection = SimulationConfig.wearing_mask_self_protection_factor
+        if is_from_symptom:
+            current_infection_probability += SimulationConfig.symptom_infection_factor
+            protection *= SimulationConfig.symptom_protection_factor
+        current_infection_probability = current_infection_probability - protection
+
+        if current_infection_probability < 0:
+            current_infection_probability = 0
+        if current_infection_probability > 1:
+            current_infection_probability = 1
         if self.status is AgentHealthState.SICK:
             return False
-        return is_with_probability(self.infection_probability)
+        return is_with_probability(current_infection_probability)
 
     def update_state(self):
         if self.quarantine_cool_down > 0:
@@ -113,7 +137,7 @@ class Agent:
         if self.status in [AgentHealthState.SICK, AgentHealthState.RECOVERED, AgentHealthState.INFECTED]:
             return
         sick_agents = WorldSearcher.get_nearby_infectable_agents(self.field, self)
-        if len(sick_agents) > 0 and self.is_infection_happen():
+        if self.is_infection_happen(sick_agents):
             self.status = AgentHealthState.INFECTED
             self.current_state_cool_down = calculate_infection_duration()
 
@@ -124,11 +148,11 @@ class Agent:
             self.symptom_action(SimulationConfig.sneeze_radius)
 
     def symptom_action(self, r: int):
-        sick_agents = WorldSearcher.get_nearby_health_agents(self.field, self, r)
-        for agent in sick_agents:
-            agent.infection_check_after_event()
+        health_agents = WorldSearcher.get_nearby_health_agents(self.field, self, r)
+        for agent in health_agents:
+            agent.infection_check_after_event(self)
 
-    def infection_check_after_event(self):
-        if self.is_infection_happen():
+    def infection_check_after_event(self, source_agent):
+        if self.is_infection_happen([source_agent], True):
             self.status = AgentHealthState.INFECTED
             self.current_state_cool_down = calculate_infection_duration()

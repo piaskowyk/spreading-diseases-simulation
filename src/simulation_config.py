@@ -29,6 +29,10 @@ class SimulationConfig:
     sneeze_probability_variation = 0.1
     has_symptoms_probability = 0.8
     has_symptoms_probability_variation = 0.1
-
     quarantine_probability = 0.7
     quarantine_duration = 10
+    wearing_mask_probability = 0.5
+    wearing_mask_self_protection_factor = 0.15
+    wearing_mask_other_protection_factor = 0.7
+    symptom_infection_factor = 0.2
+    symptom_protection_factor = 0.2
