@@ -6,6 +6,7 @@ from src.agent_probability_calculator import calculate_infection_duration, calcu
     calculate_cough_probability, calculate_sneeze_probability
 from src.field import Field
 from src.agent_config import AgentActivityState, AgentHealthState, SimulationEventType
+from src.simulation_config import SimulationConfig
 from src.util import is_with_probability
 from src.world_searcher import WorldSearcher
 
@@ -20,7 +21,7 @@ class Agent:
     agent_activity: AgentActivityState
 
     render_event = False
-    event = 0
+    event = SimulationEventType.NONE
 
     infection_probability = 0
     cough_probability = 0
@@ -98,5 +99,26 @@ class Agent:
             return
         sick_agents = WorldSearcher.get_nearby_infectable_agents(self.field, self)
         if len(sick_agents) > 0 and self.is_infection_happen():
+            self.status = AgentHealthState.INFECTED
+            self.current_state_cool_down = calculate_infection_duration()
+
+    def process_event(self):
+        if self.event is SimulationEventType.COUGH:
+            self.cough_action()
+        if self.event is SimulationEventType.SNEEZE:
+            self.sneeze_action()
+
+    def cough_action(self):
+        sick_agents = WorldSearcher.get_nearby_health_agents(self.field, self, SimulationConfig.cough_radius)
+        for agent in sick_agents:
+            agent.infection_check_after_event()
+
+    def sneeze_action(self):
+        sick_agents = WorldSearcher.get_nearby_health_agents(self.field, self, SimulationConfig.sneeze_radius)
+        for agent in sick_agents:
+            agent.infection_check_after_event()
+
+    def infection_check_after_event(self):
+        if self.is_infection_happen():
             self.status = AgentHealthState.INFECTED
             self.current_state_cool_down = calculate_infection_duration()

@@ -8,6 +8,9 @@ class SimulationConfig:
     fixed_cases_count = 3
     create_sick_agent_probability = 0.5
 
+    cough_radius = 3
+    sneeze_radius = 6
+
     sickness_duration = 10
     sickness_duration_variation = 2
     infection_probability = 0.5

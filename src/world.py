@@ -61,5 +61,6 @@ class World:
         self.event_collector.append(event)
 
     def process_step_effects(self):
-        # todo: zarażanie po kaszlu
+        for event in self.event_collector:
+            event.field.agent.process_event()
         self.event_collector.clear()
