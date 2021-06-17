@@ -1,6 +1,6 @@
 import random as rnd
 
-from src.SimulationEvent import SimulationEvent
+from src.simulation_event import SimulationEvent
 from src.agent_probability_calculator import calculate_infection_duration, calculate_death_probability, \
     calculate_sickness_duration, calculate_recovered_duration, calculate_infection_probability, \
     calculate_cough_probability, calculate_sneeze_probability, calculate_symptoms_probability
@@ -119,17 +119,12 @@ class Agent:
 
     def process_event(self):
         if self.event is SimulationEventType.COUGH:
-            self.cough_action()
+            self.symptom_action(SimulationConfig.cough_radius)
         if self.event is SimulationEventType.SNEEZE:
-            self.sneeze_action()
+            self.symptom_action(SimulationConfig.sneeze_radius)
 
-    def cough_action(self):
-        sick_agents = WorldSearcher.get_nearby_health_agents(self.field, self, SimulationConfig.cough_radius)
-        for agent in sick_agents:
-            agent.infection_check_after_event()
-
-    def sneeze_action(self):
-        sick_agents = WorldSearcher.get_nearby_health_agents(self.field, self, SimulationConfig.sneeze_radius)
+    def symptom_action(self, r: int):
+        sick_agents = WorldSearcher.get_nearby_health_agents(self.field, self, r)
         for agent in sick_agents:
             agent.infection_check_after_event()
 

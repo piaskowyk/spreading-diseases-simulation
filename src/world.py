@@ -1,6 +1,6 @@
 import random
 
-from src.SimulationEvent import SimulationEvent
+from src.simulation_event import SimulationEvent
 from src.agent_config import AgentHealthState
 from src.field import Field
 from src.agent import Agent
