@@ -59,3 +59,11 @@ def calculate_sneeze_probability():
         SimulationConfig.sneeze_probability,
         SimulationConfig.sneeze_probability_variation
     )
+
+
+def calculate_symptoms_probability():
+    return get_value_with_variation(
+        SimulationConfig.has_symptoms_probability,
+        SimulationConfig.has_symptoms_probability_variation
+    )
+

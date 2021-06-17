@@ -3,7 +3,7 @@ import random as rnd
 from src.SimulationEvent import SimulationEvent
 from src.agent_probability_calculator import calculate_infection_duration, calculate_death_probability, \
     calculate_sickness_duration, calculate_recovered_duration, calculate_infection_probability, \
-    calculate_cough_probability, calculate_sneeze_probability
+    calculate_cough_probability, calculate_sneeze_probability, calculate_symptoms_probability
 from src.field import Field
 from src.agent_config import AgentActivityState, AgentHealthState, SimulationEventType
 from src.simulation_config import SimulationConfig
@@ -28,7 +28,7 @@ class Agent:
     sneeze_probability = 0
     current_state_cool_down = 0
     resistance = 0
-    has_symptoms = None
+    has_symptoms = False
 
     def __init__(self, world, is_sick):
         global ID
@@ -41,6 +41,7 @@ class Agent:
         self.infection_probability = calculate_infection_probability()
         self.cough_probability = calculate_cough_probability()
         self.sneeze_probability = calculate_sneeze_probability()
+        self.has_symptoms = is_with_probability(calculate_symptoms_probability())
 
     def step(self):
         self.update_state()
@@ -55,7 +56,7 @@ class Agent:
             self.world.move_agent(self, x, y)
 
     def cough_or_sneeze(self):
-        if self.status is not AgentHealthState.SICK:
+        if self.status is not AgentHealthState.SICK or not self.has_symptoms:
             return
         if is_with_probability(self.cough_probability):
             self.render_event = True
