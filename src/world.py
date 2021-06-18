@@ -37,10 +37,14 @@ class World:
             x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
         self.fields[x][y].take(agent)
 
-    def field_is_free(self, x: int, y: int):
+    def get_random_field(self) -> Field:
+        x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
+        return self.fields[x][y]
+
+    def field_is_free(self, x: int, y: int) -> bool:
         return self.fields[x][y].is_free()
 
-    def is_possible_move(self, x: int, y: int):
+    def is_possible_move(self, x: int, y: int) -> bool:
         return True \
             if -1 < x < self.width and -1 < y < self.height and self.field_is_free(x, y) \
             else False

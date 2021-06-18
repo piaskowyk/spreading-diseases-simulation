@@ -7,7 +7,7 @@ from src.agent_probability_calculator import calculate_infection_duration, calcu
 from src.field import Field
 from src.agent_config import AgentActivityState, AgentHealthState, SimulationEventType
 from src.simulation_config import SimulationConfig
-from src.util import is_with_probability, get_value_with_variation, rand_from_set
+from src.util import is_with_probability, get_value_with_variation, rand_from_set, get_with_probability
 from src.world_searcher import WorldSearcher
 
 ID: int = 0
@@ -32,6 +32,7 @@ class Agent:
     resistance = 0
     has_symptoms = False
     wearing_mask = False
+    destination: Field
 
     def __init__(self, world, is_sick):
         global ID
@@ -46,6 +47,7 @@ class Agent:
         self.sneeze_probability = calculate_sneeze_probability()
         self.has_symptoms = is_with_probability(calculate_symptoms_probability())
         self.wearing_mask = is_with_probability(SimulationConfig.wearing_mask_probability)
+        self.destination = world.get_random_field()
 
     def step(self):
         self.update_state()
@@ -60,8 +62,22 @@ class Agent:
     def walk(self):
         if self.agent_activity != AgentActivityState.NONE or is_with_probability(SimulationConfig.stand_probability):
             return
-        x = self.field.x + rnd.randint(-1, 1)
-        y = self.field.y + rnd.randint(-1, 1)
+        if self.field.x == self.destination.x and self.field.y == self.destination.y:
+            self.destination = self.world.get_random_field()
+        x_move, y_move = 0, 0
+        if self.field.x < self.destination.x:
+            x_move = 1
+        if self.field.x > self.destination.x:
+            x_move = -1
+        if self.field.y < self.destination.y:
+            y_move = 1
+        if self.field.y > self.destination.y:
+            y_move = -1
+
+        x_variation = get_with_probability([0, -1, 1], [0.6, 0.2, 0.2])
+        y_variation = get_with_probability([0, -1, 1], [0.6, 0.2, 0.2])
+        x = self.field.x + max(min(x_variation + x_move, 1), -1)
+        y = self.field.y + max(min(y_variation + y_move, 1), -1)
         if self.world.is_possible_move(x, y):
             self.world.move_agent(self, x, y)
 
