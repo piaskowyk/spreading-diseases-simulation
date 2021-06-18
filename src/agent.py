@@ -7,7 +7,7 @@ from src.agent_probability_calculator import calculate_infection_duration, calcu
 from src.field import Field
 from src.agent_config import AgentActivityState, AgentHealthState, SimulationEventType
 from src.simulation_config import SimulationConfig
-from src.util import is_with_probability
+from src.util import is_with_probability, get_value_with_variation, rand_from_set
 from src.world_searcher import WorldSearcher
 
 ID: int = 0
@@ -24,10 +24,11 @@ class Agent:
     event = SimulationEventType.NONE
 
     infection_probability = 0
+    infection_probability_factor = 0
     cough_probability = 0
     sneeze_probability = 0
     current_state_cool_down = 0
-    quarantine_cool_down = 0
+    action_duration = 0
     resistance = 0
     has_symptoms = False
     wearing_mask = False
@@ -48,19 +49,44 @@ class Agent:
 
     def step(self):
         self.update_state()
-        self.walk()
+        self.do_action()
         self.infection_check()
-        self.cough_or_sneeze()
+        self.do_event()
+
+    def do_action(self):
+        self.talk()
+        self.walk()
 
     def walk(self):
-        if self.agent_activity == AgentActivityState.QUARANTINE:
+        if self.agent_activity != AgentActivityState.NONE or is_with_probability(SimulationConfig.stand_probability):
             return
         x = self.field.x + rnd.randint(-1, 1)
         y = self.field.y + rnd.randint(-1, 1)
         if self.world.is_possible_move(x, y):
             self.world.move_agent(self, x, y)
 
-    def cough_or_sneeze(self):
+    def talk(self):
+        if self.agent_activity != AgentActivityState.NONE:
+            return
+        talkable_agents = WorldSearcher.get_nearby_talkable_agents(self.field, self)
+        if len(talkable_agents) == 0 \
+                or not is_with_probability(SimulationConfig.talk_probability):
+            return
+        self.agent_activity = AgentActivityState.TALK
+        action_duration = get_value_with_variation(
+            SimulationConfig.talk_duration,
+            SimulationConfig.talk_duration_variation
+        )
+        mate = rand_from_set(talkable_agents)
+        if mate.agent_activity != AgentActivityState.TALK:
+            mate.agent_activity = AgentActivityState.TALK
+        elif mate.action_duration < action_duration:
+            action_duration = (mate.action_duration + action_duration) / 2
+            mate.action_duration = action_duration
+        self.action_duration = action_duration
+        self.infection_probability_factor = SimulationConfig.talk_infection_probability_factor
+
+    def do_event(self):
         if self.status is not AgentHealthState.SICK or not self.has_symptoms:
             return
         if is_with_probability(self.cough_probability):
@@ -80,7 +106,7 @@ class Agent:
             if not agent.wearing_mask:
                 all_wear_mask = False
                 break
-        current_infection_probability = self.infection_probability
+        current_infection_probability = self.infection_probability + self.infection_probability_factor
         protection = 0
         if all_wear_mask:
             protection = SimulationConfig.wearing_mask_other_protection_factor
@@ -100,10 +126,11 @@ class Agent:
         return is_with_probability(current_infection_probability)
 
     def update_state(self):
-        if self.quarantine_cool_down > 0:
-            self.quarantine_cool_down -= 1
-        if self.quarantine_cool_down == 0 and self.agent_activity == AgentActivityState.QUARANTINE:
+        if self.action_duration > 0:
+            self.action_duration -= 1
+        if self.action_duration <= 0:
             self.agent_activity = AgentActivityState.NONE
+            self.infection_probability_factor = 0
 
         if self.current_state_cool_down == 0:
             return
@@ -131,7 +158,7 @@ class Agent:
     def quarantine_check(self):
         if is_with_probability(SimulationConfig.quarantine_probability):
             self.agent_activity = AgentActivityState.QUARANTINE
-            self.quarantine_cool_down = SimulationConfig.quarantine_duration
+            self.action_duration = SimulationConfig.quarantine_duration
 
     def infection_check(self):
         if self.status in [AgentHealthState.SICK, AgentHealthState.RECOVERED, AgentHealthState.INFECTED]:

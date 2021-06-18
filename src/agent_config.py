@@ -20,14 +20,10 @@ class AgentStateConfig:
 
 
 class AgentActivityState(Enum):
-    SLEEP = 1
-    WALK = 2
-    STAND = 3
-    SICK = 4
-    TALK = 5
-    WEAR_MASK = 6
-    QUARANTINE = 7
-    NONE = 8
+    TALK = 1
+    QUARANTINE = 2
+    NONE = 3
+    WALK = 4
 
 
 class SimulationEventType(Enum):

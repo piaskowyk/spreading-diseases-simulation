@@ -15,7 +15,9 @@ def is_with_probability(probability: float):
 
 
 def rand_from_set(items: list):
-    return items[random.randint(0, len(list) - 1)]
+    if len(items) == 0:
+        return None
+    return items[random.randint(0, len(items) - 1)]
 
 
 def get_value_with_variation(value, variation, to_int=False):
