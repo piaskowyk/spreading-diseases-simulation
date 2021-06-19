@@ -38,6 +38,6 @@ class SimulationConfig:
     symptom_protection_factor = 0.2
     talk_probability = 0.1
     talk_infection_probability_factor = 0.3
-    talk_duration = 5
-    talk_duration_variation = 3
+    talk_duration = 2
+    talk_duration_variation = 1
     stand_probability = 0.2
