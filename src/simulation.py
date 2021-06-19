@@ -41,7 +41,7 @@ class Simulation:
             self.step()
             self.graphic.render()
             self.statistic.collect_statistics()
-            time.sleep(SimulationConfig.interval)
+            # time.sleep(SimulationConfig.interval)
 
     def step(self):
         random.shuffle(self.world.agents)

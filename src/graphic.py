@@ -13,6 +13,7 @@ class Graphic:
     height: int
     width_size: int
     height_size: int
+    agent_size: int
     clock: pygame.time.Clock
 
     def __init__(self, world: World, width: int, height: int):
@@ -27,6 +28,7 @@ class Graphic:
         self.clock = pygame.time.Clock()
         self.width_size = int(self.width / self.world.width)
         self.height_size = int(self.height / self.world.height)
+        self.agent_size = min(self.width_size, self.height_size)
 
     def render_grid(self):
         color_type = 0
@@ -47,15 +49,6 @@ class Graphic:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    print("click")
-                if event.button == 4:
-                    print("scrollTop")
-                if event.button == 5:
-                    print("scrollDown")
-            if event.type == pygame.MOUSEMOTION:
-                print(pygame.mouse.get_pos())
         self.clock.tick(10)
 
     def draw_world(self):
@@ -68,12 +61,12 @@ class Graphic:
                 self.width_size * agent.field.x + (self.width_size / 2),
                 self.height_size * agent.field.y + (self.height_size / 2),
             )
-            pygame.draw.circle(self.agent_surface, AgentStateConfig.colors[agent.status], position, 10)
+            pygame.draw.circle(self.agent_surface, AgentStateConfig.colors[agent.status], position, self.agent_size)
             if agent.render_event:
                 if agent.event == SimulationEventType.COUGH:
-                    pygame.draw.circle(self.alpha_surface, (33, 33, 33, 100), position, 100)
+                    pygame.draw.circle(self.alpha_surface, (33, 33, 33, 100), position, self.agent_size * 10)
                 if agent.event == SimulationEventType.SNEEZE:
-                    pygame.draw.circle(self.alpha_surface, (33, 33, 33, 100), position, 200)
+                    pygame.draw.circle(self.alpha_surface, (33, 33, 33, 100), position, self.agent_size * 20)
                 agent.render_event = False
 
         self.screen.blit(self.background_surface, (0, 0))

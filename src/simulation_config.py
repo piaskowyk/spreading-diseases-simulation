@@ -1,9 +1,9 @@
 class SimulationConfig:
     interval = 0
-    word_size = (10, 10)
-    pane_size = (400, 400)
+    word_size = (400, 400)
+    pane_size = (800, 800)
 
-    population_size = 10
+    population_size = 10000
     fixed_sick_cases = False
     fixed_cases_count = 3
     create_sick_agent_probability = 0.5
