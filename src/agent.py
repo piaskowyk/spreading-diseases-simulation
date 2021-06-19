@@ -41,7 +41,7 @@ class Agent:
         self.world = world
         self.status = AgentHealthState.SICK if is_sick else AgentHealthState.HEALTHY
         if self.status is AgentHealthState.SICK:
-            self.current_state_cool_down = calculate_sickness_duration()
+            self.current_state_cool_down = int(calculate_sickness_duration())
         self.infection_probability = calculate_infection_probability()
         self.cough_probability = calculate_cough_probability()
         self.sneeze_probability = calculate_sneeze_probability()
@@ -157,11 +157,11 @@ class Agent:
 
             if self.status is AgentHealthState.SICK:
                 self.status = AgentHealthState.RECOVERED
-                self.current_state_cool_down = calculate_recovered_duration()
+                self.current_state_cool_down = int(calculate_recovered_duration())
 
             if self.status is AgentHealthState.INFECTED:
                 self.status = AgentHealthState.SICK
-                self.current_state_cool_down = calculate_sickness_duration()
+                self.current_state_cool_down = int(calculate_sickness_duration())
                 self.quarantine_check()
 
         self.death_check()
@@ -182,7 +182,7 @@ class Agent:
         sick_agents = WorldSearcher.get_nearby_infectable_agents(self.field, self)
         if self.is_infection_happen(sick_agents):
             self.status = AgentHealthState.INFECTED
-            self.current_state_cool_down = calculate_infection_duration()
+            self.current_state_cool_down = int(calculate_infection_duration())
 
     def process_event(self):
         if self.event is SimulationEventType.COUGH:
@@ -198,4 +198,4 @@ class Agent:
     def infection_check_after_event(self, source_agent):
         if self.is_infection_happen([source_agent], True):
             self.status = AgentHealthState.INFECTED
-            self.current_state_cool_down = calculate_infection_duration()
+            self.current_state_cool_down = int(calculate_infection_duration())
